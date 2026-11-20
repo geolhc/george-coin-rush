@@ -4,11 +4,11 @@ import {Quaternion,Vector3} from 'three';
 // CPU projection for browsers without a GPU context. All piece transforms come from Rapier.
 export function softwareCabinet(host:HTMLElement){
  const canvas=document.createElement('canvas');host.prepend(canvas);const c=canvas.getContext('2d')!;
- const banner=marquee().image,face=medal().image,trim=strip('▼   COLLECTION   ▼').image;
+ const banner=marquee().image,face=medal().image,trim=strip('▼   COLLECTION   ▼').image,ramLabel=strip('G C R   //   PUSH DRIVE').image;
  let w=0,h=0,aim=0,scale=1,sy=1;
- const resize=()=>{w=host.clientWidth;h=host.clientHeight;const d=Math.min(devicePixelRatio,1.5);canvas.width=w*d;canvas.height=h*d;canvas.style.width=w+'px';canvas.style.height=h+'px';c.setTransform(d,0,0,d,0,0);scale=Math.min((w-14)/10,(h-12)/8.3);sy=Math.min((h-12)/8.3,scale*1.37)};
+ const resize=()=>{w=host.clientWidth;h=host.clientHeight;const d=Math.min(devicePixelRatio,1.5);canvas.width=w*d;canvas.height=h*d;canvas.style.width=w+'px';canvas.style.height=h+'px';c.setTransform(d,0,0,d,0,0);scale=Math.min((w-14)/10,(h-12)/8.3);sy=Math.min((h-12)/10.8,scale*1.37)};
  new ResizeObserver(resize).observe(host);resize();
- function pt(x:number,y:number,z:number){const perspective=1+z*.043;return [w/2+x*scale*perspective,h*.53+(z*.72-y*.93+.15)*sy] as const}
+ function pt(x:number,y:number,z:number){const perspective=1+z*.043;return [w/2+x*scale*perspective,h*.57+(z*.72-y*.93+.15)*sy] as const}
  function polygon(p:ReadonlyArray<readonly [number,number]>,fill:string){c.beginPath();c.moveTo(...p[0]);for(const a of p.slice(1))c.lineTo(...a);c.closePath();c.fillStyle=fill;c.fill()}
  function block(x:number,y:number,z:number,a:number,b:number,d:number,top:string,front:string,side:string){
  const l=x-a/2,r=x+a/2,f=z+d/2,k=z-d/2;
@@ -18,14 +18,14 @@ export function softwareCabinet(host:HTMLElement){
  polygon([pt(l,y,f),pt(r,y,f),pt(r,y-b,f),pt(l,y-b,f)],front)}
  function panel(img:HTMLCanvasElement,x:number,y:number,z:number,a:number,b:number){const [px,py]=pt(x-a/2,y,z),[ex,ey]=pt(x+a/2,y-b,z);c.drawImage(img,px,py,ex-px,ey-py)}
  const q=new Quaternion(),axisX=new Vector3(),axisZ=new Vector3();
- return {aim(x:number){aim=x},lane(px:number,py:number){const r=host.getBoundingClientRect(),z=((py-r.top-h*.53)/sy-.15)/.72;return Math.max(-3.12,Math.min(3.12,(px-r.left-w/2)/(scale*(1+.043*z))))},lowerQuality(){},
+ return {aim(x:number){aim=x},lane(px:number,py:number){const r=host.getBoundingClientRect(),z=((py-r.top-h*.57)/sy-.15)/.72;return Math.max(-3.12,Math.min(3.12,(px-r.left-w/2)/(scale*(1+.043*z))))},lowerQuality(){},
  draw(f:Frame){
  c.clearRect(0,0,w,h);block(0,-.05,.08,8,.98,9,'#334665','#1c294b','#263149');block(0,3.24,-4.08,7.95,3.5,.5,'#9daac4','#263957','#111a30');
  panel(banner,0,3,-3.81,7.28,2.73);
  for(const x of [-3.8,3.8]){block(x,3.24,-3.83,.22,3.28,.25,'#b7afff','#5f4993','#373052');block(x,3.06,-3.66,.052,2.88,.04,'#cc99ff','#c897ff','#a974e8')}
  block(0,.003,-.23,7.2,.16,7.67,'#344b60','#9babaf','#53647e');
  for(let i=-3;i<=3;i++)block(i,.008,-.22,.015,.005,7.5,'#4e647a','#4d6275','#4d6275');
- block(0,.44,f.shelfZ,7.17,.44,2.44,'#687a94','#8c9eaf','#4e6483');panel(trim,0,.41,f.shelfZ+1.225,7.1,.34);
+ block(0,.44,f.shelfZ,7.17,.44,2.44,'#687a94','#8c9eaf','#4e6483');panel(ramLabel,0,.41,f.shelfZ+1.225,7.1,.34);
  for(let i=-3;i<=3;i++)block(i,.45,f.shelfZ,.055,.02,2.34,'#b0c4d6','#9fabc9','#778a99');
  const pieces=f.pieces.slice().sort((a,b)=>(a.p[2]+a.p[1]*1.55)-(b.p[2]+b.p[1]*1.55));
  for(const p of pieces){
