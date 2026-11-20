@@ -1,16 +1,35 @@
-name: Import cabinet source
-on: push
+name: Build and publish cabinet
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: pages
+  cancel-in-progress: false
 jobs:
-  import-source:
+  publish:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
-      - name: Expand the initial project into the repository
-        run: |
-          unzip -o cabinet-source.zip
-          git rm cabinet-source.zip
-          git add .
-          git -c user.name='github-actions[bot]' -c user.email='41898282+github-actions[bot]@users.noreply.github.com' commit -m 'Install cabinet physics, renderer, sound, co-op server and tests'
-          git push
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
+        env:
+          VITE_ROOM_SERVER: ${{ vars.VITE_ROOM_SERVER }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: publish
+        uses: actions/deploy-pages@v4
