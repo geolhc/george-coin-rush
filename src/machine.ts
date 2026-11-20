@@ -35,7 +35,18 @@ export class Machine {
     this.items.set(++this.id,{body:b,kind});return b;
   }
   drop(x:number){
-    if(!Number.isFinite(x)||this.time-this.lastDrop<.22||this.items.size>=150)return false;
+    if(!Number.isFinite(x)||this.time-this.lastDrop<.22)return false;
+    // An arcade feeder recirculates a rear medal when the tray reaches capacity.
+    // Keep crystals, cores and everything near the collection lip on the bed.
+    if(this.items.size>=150){
+      let rearId=-1,rearZ=Infinity;
+      for(const [id,item] of this.items){
+        const z=item.body.translation().z;
+        if(item.kind==='coin'&&z<rearZ){rearId=id;rearZ=z}
+      }
+      const rear=this.items.get(rearId);if(!rear)return false;
+      this.world.removeRigidBody(rear.body);this.items.delete(rearId);
+    }
     const kind=(this.drops+1)%13===0?'core':(this.drops+1)%7===0?'gem':'coin';
     const b=this.spawn(kind,Math.max(-3.12,Math.min(3.12,x)),1.9,this.shelfZ+1.34)!;
     b.setLinvel({x:0,y:-1,z:1.25},true); b.setAngvel({x:1.3,y:.3,z:.2},true);

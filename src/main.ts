@@ -18,7 +18,7 @@ function notice(s:string){clearTimeout(noticeTimer);$('notice').textContent=s;no
 function cheer(key:keyof typeof lines){rack.host(key);notice(lines[key])}
 async function start(){
  await initPhysics();let game=new Machine();const view=cabinet($('bay'));let frame=game.snapshot(),live=false,remote=false,online=0,player=-1,turn=-1,socket:WebSocket|undefined,retry:ReturnType<typeof setTimeout>|undefined;
- let roomCode='',token='',lastHost=0,lastStage=0;
+ let roomCode='',token='',lastHost=0,lastStage=0,nearMissAt=-1;
  const wsURL=import.meta.env.VITE_ROOM_SERVER||(import.meta.env.DEV?'ws://'+location.hostname+':8787':'');
  const paint=(f:Frame)=>{
   $('score').textContent=String(f.score).padStart(6,'0');$('chain').textContent='×'+f.chain;
@@ -36,7 +36,7 @@ async function start(){
  }
  function lane(x:number){aim=x;view.aim(x);$<HTMLInputElement>('lane').value=String(x*100)}
  function drop(){rack.unlock();if(remote){if(online>=2&&turn===player&&socket?.readyState===1)socket.send(JSON.stringify({type:'drop',x:aim}));return}
- if(game.drop(aim)){rack.tone(720,.14,.15,0,'triangle',250);if(!live)cheer('ready');live=true}else if(game.items.size>=150)notice('Shelf full · wait for the next push')}
+ if(game.drop(aim)){nearMissAt=game.time+2.7;rack.tone(720,.14,.15,0,'triangle',250);if(!live)cheer('ready');live=true}else if(game.items.size>=150)notice('Shelf full · wait for the next push')}
  $('drop').onclick=drop;$('lane').oninput=e=>lane(Number((e.target as HTMLInputElement).value)/100);
  const bay=$('bay');let pointer:number|null=null;
  bay.onpointerdown=e=>{if(pointer!==null)return;rack.unlock();pointer=e.pointerId;bay.setPointerCapture(pointer);lane(view.lane(e.clientX,e.clientY))};
@@ -64,6 +64,7 @@ async function start(){
  if(delta>.032&&delta<.25){if(++slow>=80){view.lowerQuality();slow=0}}else slow=Math.max(0,slow-1);
  if(!remote){acc+=Math.min(delta,.08);while(acc>=1/60){game.step();acc-=1/60}if(game.hits&&live)rack.hit();game.hits=0;
  if(live&&game.time-lastMotor>Math.PI){rack.push();lastMotor=game.time}
+ if(nearMissAt>0&&game.time>=nearMissAt){nearMissAt=-1;if(game.lastWin<game.lastDrop&&game.drops%4===0&&performance.now()-lastHost>3000){cheer('close');lastHost=performance.now()}}
  effects(game.wins.splice(0),game.chain);frame=game.snapshot();if(t-hudTime>90){paint(frame);hudTime=t}}
  view.draw(frame)}
  requestAnimationFrame(loop);
