@@ -1,6 +1,7 @@
 import './style.css';
 import {initPhysics,Machine,goals,type Frame,type Kind} from './machine';
 import {cabinet} from './view';
+import {softwareCabinet} from './software';
 import {AudioRack,lines} from './audio';
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const dialog=document.querySelector('dialog')!,rack=new AudioRack();
@@ -17,7 +18,7 @@ let noticeTimer:ReturnType<typeof setTimeout>,burstTimer:ReturnType<typeof setTi
 function notice(s:string){clearTimeout(noticeTimer);$('notice').textContent=s;noticeTimer=setTimeout(()=>$('notice').textContent='',2300)}
 function cheer(key:keyof typeof lines){rack.host(key);notice(lines[key])}
 async function start(){
- await initPhysics();let game=new Machine();const view=cabinet($('bay'));let frame=game.snapshot(),live=false,remote=false,online=0,player=-1,turn=-1,socket:WebSocket|undefined,retry:ReturnType<typeof setTimeout>|undefined;
+ await initPhysics();let game=new Machine();const view=(()=>{try{return cabinet($('bay'))}catch{return softwareCabinet($('bay'))}})();let frame=game.snapshot(),live=false,remote=false,online=0,player=-1,turn=-1,socket:WebSocket|undefined,retry:ReturnType<typeof setTimeout>|undefined;
  let roomCode='',token='',lastHost=0,lastStage=0,nearMissAt=-1;
  const wsURL=import.meta.env.VITE_ROOM_SERVER||(import.meta.env.DEV?'ws://'+location.hostname+':8787':'');
  const paint=(f:Frame)=>{
