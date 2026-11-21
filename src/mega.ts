@@ -28,7 +28,7 @@ async function start(){
  el('clock').textContent=time(r.elapsed);el('linked').textContent=r.connected+' / 4';
  el('phase').textContent=['','CORE TRANSPORT','MACHINE TRANSFORMATION','ROBOT AWAKENING'][r.phase];
  const s=cores[Math.min(3,r.connected)],turns=(s.angle-r.slot%4+4)%4;
- el('objective').textContent=r.won?'Neon Robot online':(r.feed>.12?'Elevator loading':turns?'Rotate '+turns+'× to align':'Circuit aligned')+' · '+s.name+' '+s.mark;
+ el('objective').textContent=r.won?'Neon Robot online':(r.feed>.12?'Elevator loading':turns?'Rotate '+turns+'× to align':r.aligned?'Circuit aligned':'Guide turning…')+' · '+s.name+' '+s.mark;
  el('objective').style.color=s.color;el('strength').textContent='PUSH '+Math.round(strength*100)+'%';
  for(const p of ['magnet','push','rotate'] as Power[]){const b=el<HTMLButtonElement>(p),wait=Math.max(0,(r.ready[p]-r.ticks)*DT,r.feed-.12);b.disabled=r.won||wait>.005;b.querySelector('small')!.textContent=wait>.005?wait.toFixed(1)+' s':({magnet:'磁力',push:'推力',rotate:'旋轉'}[p])}
  }
