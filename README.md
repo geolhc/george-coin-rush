@@ -21,6 +21,8 @@ The Pages workflow runs tests, checks TypeScript, builds Vite and deploys dist f
 
 ## V1.1 — Beyond the Push (review branch)
 
+[Open the private playable review](https://george-mega-machine-v11-review.geolhc.chatgpt.site).
+
 Open **MEGA MACHINE** from Classic, or open `mega.html` beneath the Vite base. Classic uses its original storage keys and room server. Mega runs entirely in the browser. Its records and mix preferences use the separate `gcr-mega-` namespace.
 
 **Awaken the Neon Robot.** Rotate the twin-rail guide clockwise to line up the current circuit. Push the core toward its matching socket. Activate the magnet as the core comes within the 2.45-unit field. The reticle begins on the matching socket, tapping the deck repositions it, dragging adjusts push strength, and Aim at socket restores the default. Cooldowns are 0.65 s (push), 1.65 s (magnet) and 0.78 s (rotate). Matching colour and engraved numerals identify the four sockets. Two locks retract the gate and tilt the ramp. Four locks start the awakening. Recover reloads only the loose core. Restart in Settings resets the entire mission.
@@ -30,7 +32,7 @@ The score is 12,000 less 15 points per active second (rounded), 45 per power and
 ### Implementation and review
 
 - `src/reactor.ts` owns the fixed 60 Hz Rapier world, typed operator commands, cooldown ticks, matching socket sensors, mission progress and event queue. One dynamic core is in flight. Rotating rails and toothed gear have kinematic colliders. The lift, retracting gate and tilting ramp move their colliders. The marked belt imparts an impulse only to a core on its surface.
-- `src/forge.ts` renders the physical components and the articulated guardian. Shared Three.js geometry and pooled trails/sparks bound allocation. A vector renderer draws the same scene when GPU initialization fails. Resolution adapts to slow frames. Reduced motion suppresses shake, trails, slowdown and camera zoom.
+- `src/forge.ts` renders the physical components and the articulated guardian. Shared Three.js geometry and pooled trails/sparks bound allocation. A depth-buffered software renderer draws the same scene when GPU initialization fails. Resolution adapts to slow frames. Reduced motion suppresses shake, trails, slowdown and camera zoom.
 - `src/mega.ts` maps touch/keyboard input to commands, presents G-BOT captions, grades and controls. Settings pause simulation time. `src/host.ts` handles original synthesized mechanical effects, a procedural music loop and optional recordings. No network service is needed for this mission.
 - Run `npm ci && npm test && npm run build`. Run `npm run dev` to play the branch locally. Vite builds Classic and Mega as separate entry points. The existing main-branch Pages deployment workflow is unchanged.
 
